@@ -1,7 +1,8 @@
 import json
 import uuid
 
-from flask import Flask, jsonify, request
+from dict2xml import dict2xml
+from flask import Flask, jsonify, request, Response
 
 app = Flask(__name__)
 
@@ -103,6 +104,18 @@ def update_list_items(id_):
 
         else:
             return "bad request, mandatory field: itemName, is missing in request payload", 400
+
+
+@app.route('/lists/<id_>/export')
+def export_list(id_):
+    db = load_json_file('./db.json')
+    list_payload = [i for i in db['lists'] if i['listID'] == id_]
+    if len(list_payload) > 0:
+        xml = dict2xml(list_payload[0])
+        resp_data = f'''<?xml version="1.0" encoding="ISO-8859-1"?><list>{xml}</list>'''
+        return Response(resp_data, mimetype='text/xml')
+    else:
+        return jsonify(sucess=False), 404
 
 
 if __name__ == '__main__':
