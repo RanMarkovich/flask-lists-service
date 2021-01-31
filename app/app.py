@@ -88,5 +88,22 @@ def delete_list(id_):
         return jsonify(sucess=False), 404
 
 
+@app.route('/lists/<id_>/items', methods=['PATCH'])
+def update_list_items(id_):
+    item_payload = request.get_json()
+    if 'itemName' in [i for i in item_payload]:
+        db = load_json_file('./db.json')
+        list_payload = [i for i in db['lists'] if i['listID'] == id_]
+        if len(list_payload) > 0:
+            for n, i in enumerate(db['lists']):
+                if i['listID'] == id_:
+                    db['lists'][n]['listItems'].append(item_payload)
+                    save_json_file(db, './db.json')
+                    return jsonify(sucess=True), 200
+
+        else:
+            return "bad request, mandatory field: itemName, is missing in request payload", 400
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
