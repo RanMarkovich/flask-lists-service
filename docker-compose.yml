@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  lists-service:
+    container_name: lists-service
+    build:
+      context: .
+      dockerfile: ./app/Dockerfile
+    ports:
+      - 5000:5000
