@@ -66,12 +66,26 @@ def update_list(id_):
                 if i['listID'] == id_:
                     db['lists'][n] = list_payload[0]
             save_json_file(db, './db.json')
-            return jsonify(sucess=True), 204
+            return jsonify(sucess=True), 200
         else:
             return jsonify(sucess=False), 404
 
     else:
         return "bad request, mandatory field is missing in request payload", 400
+
+
+@app.route('/lists/<id_>', methods=['DELETE'])
+def delete_list(id_):
+    db = load_json_file('./db.json')
+    list_payload = [i for i in db['lists'] if i['listID'] == id_]
+    if len(list_payload) > 0:
+        for n, i in enumerate(db['lists']):
+            if i['listID'] == id_:
+                del db['lists'][n]
+                save_json_file(db, './db.json')
+                return jsonify(sucess=True), 200
+    else:
+        return jsonify(sucess=False), 404
 
 
 if __name__ == '__main__':
