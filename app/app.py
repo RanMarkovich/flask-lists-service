@@ -118,5 +118,16 @@ def export_list(id_):
         return jsonify(sucess=False), 404
 
 
+@app.route('/lists/export')
+def export_lists():
+    db = load_json_file('./db.json')
+    resp_data = ''
+    xml = ''
+    for list_ in db['lists']:
+        resp_data += f'<list>{dict2xml(list_)}</list>'
+        xml = f'<?xml version="1.0" encoding="ISO-8859-1"?><lists>{resp_data}</lists>'
+    return Response(xml, mimetype='text/xml')
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)

@@ -1,1 +1,1 @@
-{"lists": [{"listID": "8518AAA1E04", "listName": "first list", "listType": "shopping", "listItems": [{"itemName": "item 1", "itemPrice": 10.0}]}]}
+{"lists": [{"listID": "8518AAA1E04", "listName": "first list", "listType": "shopping", "listItems": [{"itemName": "item 1", "itemPrice": 10.0}]}, {"listID": "547DC72AB2D", "listName": "second list", "listType": "shopping", "listItems": [{"itemName": "item 2", "itemPrice": 12.5}]}]}
