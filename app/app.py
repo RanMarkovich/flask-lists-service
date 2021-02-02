@@ -22,9 +22,14 @@ def save_json_file(req_data, path):
         json.dump(req_data, j)
 
 
+def copy_write_db_content_to_read_db():
+    write_db = load_json_file('database/write_db.json')
+    save_json_file(write_db, 'database/read_db.json')
+
+
 @app.route('/lists')
 def get_lists():
-    db = load_json_file('./db.json')
+    db = load_json_file('database/read_db.json')
     return jsonify(db), 200
 
 
@@ -36,9 +41,10 @@ def create_list():
         new_list_payload['listID'] = rnd_id()
         new_list_payload['listName'] = req_payload['listName']
         new_list_payload['listType'] = req_payload['listType']
-        db = load_json_file('./db.json')
+        db = load_json_file('database/read_db.json')
         db['lists'].append(new_list_payload)
-        save_json_file(db, './db.json')
+        save_json_file(db, 'database/write_db.json')
+        copy_write_db_content_to_read_db()
         return jsonify({"listID": new_list_payload['listID']}), 200
     else:
         return "bad request, mandatory field is missing in request payload", 400
@@ -46,7 +52,7 @@ def create_list():
 
 @app.route('/lists/<id_>')
 def get_list(id_):
-    db = load_json_file('./db.json')
+    db = load_json_file('database/read_db.json')
     list_payload = [i for i in db['lists'] if i['listID'] == id_]
     if len(list_payload) > 0:
         return jsonify(list_payload[0]), 200
@@ -58,7 +64,7 @@ def get_list(id_):
 def update_list(id_):
     req_payload = request.get_json()
     if sorted([i for i in req_payload.keys()]) == sorted(['listName', "listType"]):
-        db = load_json_file('./db.json')
+        db = load_json_file('database/read_db.json')
         list_payload = [i for i in db['lists'] if i['listID'] == id_]
         if len(list_payload) > 0:
             list_payload[0]['listName'] = req_payload['listName']
@@ -66,7 +72,8 @@ def update_list(id_):
             for n, i in enumerate(db['lists']):
                 if i['listID'] == id_:
                     db['lists'][n] = list_payload[0]
-            save_json_file(db, './db.json')
+            save_json_file(db, 'database/write_db.json')
+            copy_write_db_content_to_read_db()
             return jsonify(sucess=True), 200
         else:
             return jsonify(sucess=False), 404
@@ -77,13 +84,14 @@ def update_list(id_):
 
 @app.route('/lists/<id_>', methods=['DELETE'])
 def delete_list(id_):
-    db = load_json_file('./db.json')
+    db = load_json_file('database/read_db.json')
     list_payload = [i for i in db['lists'] if i['listID'] == id_]
     if len(list_payload) > 0:
         for n, i in enumerate(db['lists']):
             if i['listID'] == id_:
                 del db['lists'][n]
-                save_json_file(db, './db.json')
+                save_json_file(db, 'database/write_db.json')
+                copy_write_db_content_to_read_db()
                 return jsonify(sucess=True), 200
     else:
         return jsonify(sucess=False), 404
@@ -93,13 +101,14 @@ def delete_list(id_):
 def update_list_items(id_):
     item_payload = request.get_json()
     if 'itemName' in [i for i in item_payload]:
-        db = load_json_file('./db.json')
+        db = load_json_file('database/read_db.json')
         list_payload = [i for i in db['lists'] if i['listID'] == id_]
         if len(list_payload) > 0:
             for n, i in enumerate(db['lists']):
                 if i['listID'] == id_:
                     db['lists'][n]['listItems'].append(item_payload)
-                    save_json_file(db, './db.json')
+                    save_json_file(db, 'database/write_db.json')
+                    copy_write_db_content_to_read_db()
                     return jsonify(sucess=True), 200
 
         else:
@@ -108,7 +117,7 @@ def update_list_items(id_):
 
 @app.route('/lists/<id_>/export')
 def export_list(id_):
-    db = load_json_file('./db.json')
+    db = load_json_file('database/read_db.json')
     list_payload = [i for i in db['lists'] if i['listID'] == id_]
     if len(list_payload) > 0:
         xml = dict2xml(list_payload[0])
@@ -120,7 +129,7 @@ def export_list(id_):
 
 @app.route('/lists/export')
 def export_lists():
-    db = load_json_file('./db.json')
+    db = load_json_file('database/read_db.json')
     resp_data = ''
     xml = ''
     for list_ in db['lists']:
