@@ -29,8 +29,17 @@ def copy_write_db_content_to_read_db():
 
 @app.route('/lists')
 def get_lists():
+    xml_param = request.args.get('xml')
     db = load_json_file('database/read_db.json')
-    return jsonify(db), 200
+    if xml_param:
+        resp_data = ''
+        xml = ''
+        for list_ in db['lists']:
+            resp_data += f'<list>{dict2xml(list_)}</list>'
+            xml = f'<?xml version="1.0" encoding="ISO-8859-1"?><lists>{resp_data}</lists>'
+        return Response(xml, mimetype='text/xml')
+    else:
+        return jsonify(db), 200
 
 
 @app.route('/lists', methods=['POST'])
@@ -53,11 +62,21 @@ def create_list():
 @app.route('/lists/<id_>')
 def get_list(id_):
     db = load_json_file('database/read_db.json')
-    list_payload = [i for i in db['lists'] if i['listID'] == id_]
-    if len(list_payload) > 0:
-        return jsonify(list_payload[0]), 200
+    xml_param = request.args.get('xml')
+    if xml_param:
+        list_payload = [i for i in db['lists'] if i['listID'] == id_]
+        if len(list_payload) > 0:
+            xml = dict2xml(list_payload[0])
+            resp_data = f'''<?xml version="1.0" encoding="ISO-8859-1"?><list>{xml}</list>'''
+            return Response(resp_data, mimetype='text/xml')
+        else:
+            return jsonify(sucess=False), 404
     else:
-        return jsonify(sucess=False), 404
+        list_payload = [i for i in db['lists'] if i['listID'] == id_]
+        if len(list_payload) > 0:
+            return jsonify(list_payload[0]), 200
+        else:
+            return jsonify(sucess=False), 404
 
 
 @app.route('/lists/<id_>', methods=['PUT'])
@@ -113,29 +132,6 @@ def update_list_items(id_):
 
         else:
             return "bad request, mandatory field: itemName, is missing in request payload", 400
-
-
-@app.route('/lists/<id_>/export')
-def export_list(id_):
-    db = load_json_file('database/read_db.json')
-    list_payload = [i for i in db['lists'] if i['listID'] == id_]
-    if len(list_payload) > 0:
-        xml = dict2xml(list_payload[0])
-        resp_data = f'''<?xml version="1.0" encoding="ISO-8859-1"?><list>{xml}</list>'''
-        return Response(resp_data, mimetype='text/xml')
-    else:
-        return jsonify(sucess=False), 404
-
-
-@app.route('/lists/export')
-def export_lists():
-    db = load_json_file('database/read_db.json')
-    resp_data = ''
-    xml = ''
-    for list_ in db['lists']:
-        resp_data += f'<list>{dict2xml(list_)}</list>'
-        xml = f'<?xml version="1.0" encoding="ISO-8859-1"?><lists>{resp_data}</lists>'
-    return Response(xml, mimetype='text/xml')
 
 
 if __name__ == '__main__':
