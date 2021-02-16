@@ -1,4 +1,4 @@
-<H1>Gists Service Test Automation Project</H1>
+<H1>Lists Service Test Automation Project</H1>
 
 <H2>About this project</H2>
 <p>This project was created for practicing building webservice in python using microservices architecture methodologies and best practices.</p>
